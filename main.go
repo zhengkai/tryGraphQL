@@ -9,46 +9,44 @@ import (
 	"time"
 
 	"github.com/graphql-go/graphql"
+	"github.com/oschwald/geoip2-golang"
 )
 
 var (
-	fields         graphql.Fields
-	rootQuery      graphql.ObjectConfig
-	schemaConfig   graphql.SchemaConfig
 	schema         graphql.Schema
 	queryLimit     = 65535
 	queryLimitText = []byte{}
+	geoDB          *geoip2.Reader
+	geoip2file     = `/usr/share/GeoIP/GeoLite2-City.mmdb`
 )
 
 func main() {
 
-	fields = graphql.Fields{
-		"hello": &graphql.Field{
-			Type:    graphql.String,
-			Resolve: helloworld,
-		},
-		"time": &graphql.Field{
-			Type:    graphql.String,
-			Resolve: getTime,
-		},
+	initVar()
+
+	http.HandleFunc(`/api`, api)
+	fmt.Println(`server started`)
+	err := http.ListenAndServe(`:59999`, nil)
+	if err != nil {
+		panic("ListenAndServe fail: " + err.Error())
 	}
-	rootQuery = graphql.ObjectConfig{Name: "RootQuery", Fields: fields}
-	schemaConfig = graphql.SchemaConfig{Query: graphql.NewObject(rootQuery)}
+}
+
+func initVar() {
 
 	var err error
-	schema, err = graphql.NewSchema(schemaConfig)
+
+	geoDB, err = geoip2.Open(geoip2file)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	schema, err = graphql.NewSchema(graphql.SchemaConfig{Query: geoipType})
 	if err != nil {
 		log.Fatalf("failed to create new schema, error: %v", err)
 	}
 
-	queryLimitText = []byte(fmt.Sprintf(`{"data":null,"errors":[{"message":"query too long (over limit %d)","locations":[{"line":0,"column":0}]}]`, queryLimit))
-
-	http.HandleFunc(`/api`, api)
-	fmt.Println(`server started`)
-	err = http.ListenAndServe(`:59999`, nil)
-	if err != nil {
-		panic("ListenAndServe fail: " + err.Error())
-	}
+	queryLimitText = []byte(fmt.Sprintf(`{"data":null,"errors":[{"message":"query too long (over limit %d)","locations":[]}]`, queryLimit))
 }
 
 func writeHttp(w http.ResponseWriter, s string) {
@@ -85,11 +83,9 @@ func api(w http.ResponseWriter, r *http.Request) {
 
 	rJSON, _ := json.Marshal(rs)
 
-	w.Write([]byte(rJSON))
-}
+	w.Header().Set(`Content-Type`, `application/json; charset=utf-8`)
 
-func helloworld(p graphql.ResolveParams) (interface{}, error) {
-	return "world", nil
+	w.Write([]byte(rJSON))
 }
 
 func getTime(p graphql.ResolveParams) (interface{}, error) {
