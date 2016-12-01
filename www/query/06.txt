@@ -1,0 +1,30 @@
+query {
+	geo(ip:"202.130.251.3") {
+		ip
+		city
+		postal_code
+		continent
+		isp {
+			name
+			organization
+		}
+		country {
+			iso_code
+			name
+		}
+		location {
+			metro_code
+			time_zone
+			latitude
+			longitude
+			accuracy_radius
+		}
+	}
+	status {
+		uptime_sec
+		uptime_text
+		request
+		request_error
+	}
+	time
+}

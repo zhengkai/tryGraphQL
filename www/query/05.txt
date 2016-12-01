@@ -1,0 +1,14 @@
+query {
+	geo(ip:"202.130.251.3") {
+		isp {
+			name
+			organization
+		}
+	}
+	status {
+		uptime_sec
+		uptime_text
+		request
+		request_error
+	}
+}

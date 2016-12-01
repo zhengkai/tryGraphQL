@@ -1,0 +1,16 @@
+query {
+	a:geo(ip:"8.8.8.8") {
+		...moreInfo
+	}
+	b:geo(ip:"202.130.251.3") {
+		...moreInfo
+	}
+}
+
+fragment moreInfo on GeoInfo {
+	city
+	country {
+		iso_code
+		name
+	}
+}

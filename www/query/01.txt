@@ -1,0 +1,12 @@
+{
+	geo(ip:"202.130.251.3") {
+		ip
+		city
+		country
+		{
+			iso_code
+			name
+		}
+	}
+	time
+}

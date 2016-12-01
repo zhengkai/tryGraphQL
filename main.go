@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	// "reflect"
 	"time"
 
 	"github.com/graphql-go/graphql"
@@ -110,6 +111,7 @@ func api(w http.ResponseWriter, r *http.Request) {
 	rJSON, _ := json.Marshal(rs)
 
 	w.Header().Set(`Content-Type`, `application/json; charset=utf-8`)
+	w.Header().Set(`Access-Control-Allow-Origin`, `*`)
 	w.Write([]byte(rJSON))
 }
 
@@ -130,9 +132,36 @@ func getStatus(p graphql.ResolveParams) (interface{}, error) {
 }
 
 func selectedFields(p graphql.ResolveParams) []string {
-	fields := make([]string, len(p.Info.FieldASTs[0].SelectionSet.Selections))
-	for i, f := range p.Info.FieldASTs[0].SelectionSet.Selections {
-		fields[i] = f.(*ast.Field).Name.Value
+
+	set := p.Info.FieldASTs[0].SelectionSet
+
+	fields := make([]string, len(set.Selections))
+	for i, f := range set.Selections {
+
+		switch f.(type) {
+		case *ast.Field:
+			fields[i] = f.(*ast.Field).Name.Value
+		case *ast.FragmentSpread:
+			fields[i] = f.(*ast.FragmentSpread).Name.Value
+		}
+
+		/*
+			DirectiveDefinition
+			EnumDefinition
+			Field
+			FragmentDefinition
+			FragmentSpread
+			InlineFragment
+			InputObjectDefinition
+			InterfaceDefinition
+			ObjectDefinition
+			OperationDefinition
+			ScalarDefinition
+			SchemaDefinition
+			TypeExtensionDefinition
+			UnionDefinition
+		*/
+
 	}
 	return fields
 }
