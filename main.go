@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/graphql-go/graphql"
+	"github.com/graphql-go/graphql/language/ast"
 	"github.com/oschwald/geoip2-golang"
 )
 
@@ -17,7 +19,15 @@ var (
 	queryLimit     = 65535
 	queryLimitText = []byte{}
 	geoDB          *geoip2.Reader
-	geoip2file     = `/usr/share/GeoIP/GeoLite2-City.mmdb`
+	geoIspDB       *geoip2.Reader
+	geoIp2file     = `/usr/share/GeoIP/GeoIP2-City.mmdb`
+	geoLite2File   = `/usr/share/GeoIP/GeoLite2-City.mmdb`
+	geoIp2IspFile  = `/usr/share/GeoIP/GeoIP2-ISP.mmdb`
+
+	statusRequest      uint64 = 0
+	statusRequestError uint64 = 0
+
+	statusTimeStart = time.Now()
 )
 
 func main() {
@@ -36,9 +46,21 @@ func initVar() {
 
 	var err error
 
-	geoDB, err = geoip2.Open(geoip2file)
+	dbFile := geoIp2file
+	if _, err = os.Stat(dbFile); err == nil {
+		dbFile = geoLite2File
+	}
+
+	geoDB, err = geoip2.Open(dbFile)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if _, err = os.Stat(geoIp2IspFile); err == nil {
+		geoIspDB, err = geoip2.Open(geoIp2IspFile)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	schema, err = graphql.NewSchema(graphql.SchemaConfig{Query: geoipType})
@@ -62,6 +84,7 @@ func api(w http.ResponseWriter, r *http.Request) {
 		n, err := r.Body.Read(p)
 		rlimit -= n
 		if rlimit < 0 {
+			statusRequestError++
 			w.Write(queryLimitText)
 			return
 		}
@@ -80,14 +103,45 @@ func api(w http.ResponseWriter, r *http.Request) {
 		RequestString: query,
 	}
 	rs := graphql.Do(params)
+	if rs.Errors != nil {
+		statusRequestError++
+	}
 
 	rJSON, _ := json.Marshal(rs)
 
 	w.Header().Set(`Content-Type`, `application/json; charset=utf-8`)
-
 	w.Write([]byte(rJSON))
 }
 
 func getTime(p graphql.ResolveParams) (interface{}, error) {
 	return fmt.Sprintf(`%v`, time.Now().Unix()), nil
+}
+
+func getStatus(p graphql.ResolveParams) (interface{}, error) {
+
+	timeDiff := time.Since(statusTimeStart) / time.Second
+
+	return Status{
+		Uptime:       int64(timeDiff),
+		UptimeText:   (timeDiff * time.Second).String(),
+		Request:      statusRequest,
+		RequestError: statusRequestError,
+	}, nil
+}
+
+func selectedFields(p graphql.ResolveParams) []string {
+	fields := make([]string, len(p.Info.FieldASTs[0].SelectionSet.Selections))
+	for i, f := range p.Info.FieldASTs[0].SelectionSet.Selections {
+		fields[i] = f.(*ast.Field).Name.Value
+	}
+	return fields
+}
+
+func isContain(slice []string, item string) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
+		}
+	}
+	return false
 }

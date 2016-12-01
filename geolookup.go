@@ -21,6 +21,8 @@ func geolookup(p graphql.ResolveParams) (r interface{}, err error) {
 
 	sLang, _ := p.Args["lang"].(string)
 
+	statusRequest++
+
 	if tmpLang, ok := langAlias[sLang]; ok {
 		sLang = tmpLang
 	}
@@ -40,6 +42,21 @@ func geolookup(p graphql.ResolveParams) (r interface{}, err error) {
 		return
 	}
 
+	var oIsp GeoIsp
+	if geoIspDB != nil {
+
+		lField := selectedFields(p)
+		if isContain(lField, `isp`) {
+			isp, err := geoIspDB.ISP(pip)
+			if err == nil {
+				oIsp = GeoIsp{
+					Name:         isp.ISP,
+					Organization: isp.Organization,
+				}
+			}
+		}
+	}
+
 	r = Geo{
 		Ip:   pip.String(),
 		City: record.City.Names[sLang],
@@ -52,10 +69,11 @@ func geolookup(p graphql.ResolveParams) (r interface{}, err error) {
 		Location: GeoLocation{
 			AccuracyRadius: record.Location.AccuracyRadius,
 			Latitude:       record.Location.Latitude,
-			Longitude:      record.Location.Longitude,
+			Longitude:      record.Location.Longitude + 0.00000000000001,
 			TimeZone:       record.Location.TimeZone,
 			MetroCode:      record.Location.MetroCode,
 		},
+		ISP: oIsp,
 	}
 
 	// fmt.Println(`r`, r)

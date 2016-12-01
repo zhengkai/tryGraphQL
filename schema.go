@@ -9,11 +9,17 @@ type Geo struct {
 	Location  GeoLocation `json:"location"`
 	Continent string      `json:"continent"`
 	Postal    string      `json:"postal_code"`
+	ISP       GeoIsp      `json:"isp"`
 }
 
 type GeoCountry struct {
 	IsoCode string `json:"iso_code"`
 	Name    string `json:"name"`
+}
+
+type GeoIsp struct {
+	Name         string `json:"name"`
+	Organization string `json:"organization"`
 }
 
 type GeoLocation struct {
@@ -50,6 +56,18 @@ var geoLang = graphql.NewEnum(graphql.EnumConfig{
 	},
 })
 
+var geoIsp = graphql.NewObject(graphql.ObjectConfig{
+	Name: "ISP",
+	Fields: graphql.Fields{
+		"name": &graphql.Field{
+			Type: graphql.String,
+		},
+		"organization": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
 var geoLocation = graphql.NewObject(graphql.ObjectConfig{
 	Name: "Location",
 	Fields: graphql.Fields{
@@ -79,6 +97,9 @@ var geoType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"city": &graphql.Field{
 			Type: graphql.String,
+		},
+		"isp": &graphql.Field{
+			Type: geoIsp,
 		},
 		"postal_code": &graphql.Field{
 			Type: graphql.String,
@@ -117,6 +138,36 @@ var geoipType = graphql.NewObject(graphql.ObjectConfig{
 			Type:        graphql.String,
 			Description: `返回服务器时间戳`,
 			Resolve:     getTime,
+		},
+		"status": &graphql.Field{
+			Type:        status,
+			Description: `返回服务器时间戳`,
+			Resolve:     getStatus,
+		},
+	},
+})
+
+type Status struct {
+	Uptime       int64  `json:"uptime_sec"`
+	UptimeText   string `json:"uptime_text"`
+	Request      uint64 `json:"request"`
+	RequestError uint64 `json:"request_error"`
+}
+
+var status = graphql.NewObject(graphql.ObjectConfig{
+	Name: "Status",
+	Fields: graphql.Fields{
+		"uptime_sec": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"uptime_text": &graphql.Field{
+			Type: graphql.String,
+		},
+		"request": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"request_error": &graphql.Field{
+			Type: graphql.Int,
 		},
 	},
 })
