@@ -137,31 +137,12 @@ func selectedFields(p graphql.ResolveParams) []string {
 
 	fields := make([]string, len(set.Selections))
 	for i, f := range set.Selections {
-
 		switch f.(type) {
 		case *ast.Field:
 			fields[i] = f.(*ast.Field).Name.Value
 		case *ast.FragmentSpread:
 			fields[i] = f.(*ast.FragmentSpread).Name.Value
 		}
-
-		/*
-			DirectiveDefinition
-			EnumDefinition
-			Field
-			FragmentDefinition
-			FragmentSpread
-			InlineFragment
-			InputObjectDefinition
-			InterfaceDefinition
-			ObjectDefinition
-			OperationDefinition
-			ScalarDefinition
-			SchemaDefinition
-			TypeExtensionDefinition
-			UnionDefinition
-		*/
-
 	}
 	return fields
 }

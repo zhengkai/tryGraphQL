@@ -9,6 +9,16 @@ pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
 	font-family: 'Droid Sans Mono', monospace;
 }
 
+.github {
+	position: absolute;
+	top: 0;
+	right: 0;
+	border: 0;
+	z-index: 100;
+	width: 149px;
+	height: 149px;
+}
+
 #queryBar {
 	padding: 1rem 3rem;
 	width: 40rem;

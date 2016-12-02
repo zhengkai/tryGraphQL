@@ -1,0 +1,9 @@
+	location /graphql/api {
+    	proxy_set_header X-Real-IP $remote_addr;
+    	proxy_pass http://localhost:59999/api;
+	}
+
+	location /graphql {
+		alias /go/src/github.com/zhengkai/tryGraphQL/www;
+	 	index index.html;
+	}
