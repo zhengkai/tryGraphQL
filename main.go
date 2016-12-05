@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	// "reflect"
 	"time"
 
 	"github.com/graphql-go/graphql"
@@ -30,6 +29,12 @@ var (
 
 	statusTimeStart = time.Now()
 )
+
+type queryJson struct {
+	Query         string `json:"query"`
+	OperationName string `json:"operationName"`
+	Variables     string `json:"variables"`
+}
 
 func main() {
 
@@ -79,25 +84,40 @@ func writeHttp(w http.ResponseWriter, s string) {
 func api(w http.ResponseWriter, r *http.Request) {
 
 	buf := bytes.NewBuffer([]byte{})
-	rlimit := queryLimit
-	for {
-		p := make([]byte, 1024)
-		n, err := r.Body.Read(p)
-		rlimit -= n
-		if rlimit < 0 {
-			statusRequestError++
-			w.Write(queryLimitText)
-			return
-		}
-		if n > 0 {
-			buf.Write(p[:n])
-		}
-		if err != nil {
-			break
+
+	var err error
+
+	if r.Method == `GET` {
+		buf.WriteString(r.FormValue(`query`))
+	} else {
+		rlimit := queryLimit
+		for {
+			p := make([]byte, 1024)
+			n, err := r.Body.Read(p)
+			rlimit -= n
+			if rlimit < 0 {
+				statusRequestError++
+				w.Write(queryLimitText)
+				return
+			}
+			if n > 0 {
+				buf.Write(p[:n])
+			}
+			if err != nil {
+				break
+			}
 		}
 	}
 
 	query := buf.String()
+
+	var qJson queryJson
+	err = json.Unmarshal([]byte(query), &qJson)
+	if err == nil {
+		query = qJson.Query
+	}
+
+	// fmt.Println(r.Method, `query =`, query)
 
 	params := graphql.Params{
 		Schema:        schema,

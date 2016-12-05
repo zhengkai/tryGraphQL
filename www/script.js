@@ -1,5 +1,5 @@
 var lQuery = {}
-var iQuery = 6;
+var iQuery = 7;
 var iQueryCountdown = iQuery;
 
 function syntaxHighlight(json) {

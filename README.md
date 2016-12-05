@@ -34,8 +34,20 @@ tryGraphQL
 运行
 ----
 
-执行编译好的 `tryGraphQL`，会监听 `59999` 端口
+执行编译好的 `tryGraphQL`，会监听 `59999` 端口    
 这时进入代码目录可以运行 [`./client.sh`](https://github.com/zhengkai/tryGraphQL/blob/master/client.sh) 来测试请求
 
-如果希望通过 web 来访问，注意修改 [`www/script.js`](https://github.com/zhengkai/tryGraphQL/blob/master/www/script.js#L62)，替换掉原有的 url `https://soulogic.com/graphql/api`
+如果希望通过 web 来访问，注意修改 [`www/script.js`](https://github.com/zhengkai/tryGraphQL/blob/master/www/script.js#L62)，替换掉原有的 url `https://soulogic.com/graphql/api`    
 预定义 query 保存在 [`www/query`](https://github.com/zhengkai/tryGraphQL/tree/master/www/query) 目录，其中 [`06.txt`](https://github.com/zhengkai/tryGraphQL/blob/master/www/query/06.txt) 提供了完整的所有可查询字段
+
+可视化
+------
+
+使用 [graphqlviz](https://github.com/sheerun/graphqlviz)
+
+    graphqlviz http://127.0.0.1:59999/api | dot -Tpng -o /tmp/graph.png
+
+可得图形
+![](graph.png)
+
+其结构跟 [`schema.go`](https://github.com/zhengkai/tryGraphQL/blob/master/schema.go) 对应

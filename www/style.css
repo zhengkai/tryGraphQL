@@ -34,3 +34,8 @@ pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
 pre {
 	margin: 0;
 }
+
+foot {
+	padding: 3rem 2rem 0;
+	display: block;
+}
