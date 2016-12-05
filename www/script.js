@@ -46,17 +46,19 @@ function init() {
 		var o = $('<button class="btn btn-outline-primary"></button>').data('i', i).text(i).click(function() {
 			var i = $(this).data('i');
 			$('#queryBox').val(lQuery[i]);
+			sendQuery();
 		}).appendTo('#queryBar');
 
 		if (i == 6) {
 			o.trigger('click');
-			$('#submitButton').trigger('click');
 		}
 	}
 }
 
 function sendQuery() {
 	var s = $('#queryBox').val();
+
+	$('#resultBox').text("\n\tQuerying...");
 
 	$.post({
 		url: 'https://soulogic.com/graphql/api',
