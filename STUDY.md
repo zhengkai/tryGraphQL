@@ -2,7 +2,7 @@
 ============
 
 * [GraphQL 官网](http://graphql.org/)
-* [GraphQL 官方文档](https://github.com/facebook/graphql/blob/master/spec/GraphQL.md)
+* [awesome GraphQL](https://github.com/chentsulin/awesome-graphql#tools)
 
 
 中文介绍
