@@ -1,7 +1,8 @@
 了解 GraphQL
 ============
 
-[GraphQL 官网](http://graphql.org/)
+* [GraphQL 官网](http://graphql.org/)
+* [GraphQL 官方文档](https://github.com/facebook/graphql/blob/master/spec/GraphQL.md)
 
 
 中文介绍
