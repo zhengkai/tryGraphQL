@@ -141,7 +141,7 @@ var geoipType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"status": &graphql.Field{
 			Type:        status,
-			Description: `返回服务器时间戳`,
+			Description: `返回服务器状态`,
 			Resolve:     getStatus,
 		},
 	},

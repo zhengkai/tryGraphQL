@@ -21,14 +21,27 @@ pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
 
 #queryBar {
 	padding: 1rem 3rem;
-	width: 40rem;
+	width: 50rem;
 }
 
 #queryBar button {
 	margin-right: 6px;
 }
-#queryBar button:first-child {
+#queryBar button:first-of-type {
 	float: right;
+}
+
+#queryBar a {
+	float: right;
+	line-height: 2rem;
+	margin-left: 3rem;
+	text-decoration: underline;
+
+}
+
+#queryBar a span{
+	font-family: georgia;
+	font-style: italic;
 }
 
 pre {
